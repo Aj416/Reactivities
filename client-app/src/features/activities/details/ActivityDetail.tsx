@@ -1,17 +1,19 @@
+import { observer } from "mobx-react-lite";
 import { Button, Card, Image } from "semantic-ui-react";
-import { Activity } from "../../../app/models/activity";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+import { useStore } from "../../../app/stores/store";
 
-interface Props {
-  activity: Activity;
-  cancelSelectedActivity: () => void;
-  openForm: (id: string) => void;
-}
+const ActivityDetail = () => {
+  const {
+    activityStore: {
+      cancelSelectedActivity,
+      openForm,
+      selectedActivity: activity,
+    },
+  } = useStore();
 
-const ActivityDetail = ({
-  activity,
-  cancelSelectedActivity,
-  openForm,
-}: Props) => {
+  if (!activity) return <LoadingComponent />;
+
   return (
     <Card fluid>
       <Image
@@ -45,4 +47,4 @@ const ActivityDetail = ({
     </Card>
   );
 };
-export default ActivityDetail;
+export default observer(ActivityDetail);
