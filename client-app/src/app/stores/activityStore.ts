@@ -103,4 +103,14 @@ export default class ActivitySore {
       return this.selectedActivity;
     }
   };
+
+  get groupedActivities() {
+    return Object.entries(
+      this.activities.reduce((result, item) => {
+        const date = item.date;
+        result[date] = result[date] ? [...result[date], item] : [item];
+        return result;
+      }, {} as { [key: string]: Activity[] })
+    );
+  }
 }
