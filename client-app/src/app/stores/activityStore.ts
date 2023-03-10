@@ -1,14 +1,12 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Activity } from "../models/activity";
-import { v4 as uuid } from "uuid";
 
 export default class ActivitySore {
   activities: Activity[] = [];
   selectedActivity: Activity | undefined = undefined;
-  editMode: boolean = false;
   loading = false;
-  initialLoading: boolean = true;
+  initialLoading: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -18,7 +16,7 @@ export default class ActivitySore {
     this.initialLoading = state;
   };
 
-  setActivities = async () => {
+  private setActivities = async () => {
     const list = await agent.Activities.list();
     runInAction(() => {
       list.forEach((item) => {
@@ -28,13 +26,21 @@ export default class ActivitySore {
     });
   };
 
-  setActivity = async (id: string) => {
-    const result = await agent.Activities.detail(id);
-    result.date = result.date.split("T")[0];
-    runInAction(() => (this.selectedActivity = result));
+  loadActivity = async (id: string) => {
+    this.setInitialLoading(true);
+    try {
+      const result = await agent.Activities.detail(id);
+      result.date = result.date.split("T")[0];
+      runInAction(() => (this.selectedActivity = result));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.setInitialLoading(false);
+    }
   };
 
   loadActivities = async () => {
+    this.setInitialLoading(true);
     try {
       await this.setActivities();
     } catch (error) {
@@ -44,41 +50,13 @@ export default class ActivitySore {
     }
   };
 
-  selectActivity = async (id: string) => {
-    try {
-      await this.setActivity(id);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      // added by me
-      runInAction(() => {
-        this.editMode = false;
-      });
-    }
-  };
-
-  cancelSelectedActivity = () => {
-    this.selectedActivity = undefined;
-  };
-
-  openForm = async (id?: string) => {
-    id ? await this.selectActivity(id) : this.cancelSelectedActivity();
-    runInAction(() => (this.editMode = true));
-  };
-
-  closeForm = () => {
-    this.editMode = false;
-  };
-
   createActivity = async (activity: Activity) => {
     this.loading = true;
-    activity.id = uuid();
     try {
       await agent.Activities.create(activity);
       await this.setActivities();
       runInAction(() => {
         this.selectedActivity = activity;
-        this.editMode = false;
       });
     } catch (error) {
       console.log(error);
@@ -94,7 +72,6 @@ export default class ActivitySore {
       await this.setActivities();
       runInAction(() => {
         this.selectedActivity = activity;
-        this.editMode = false;
       });
     } catch (error) {
       console.log(error);
@@ -108,16 +85,22 @@ export default class ActivitySore {
     try {
       await agent.Activities.delete(id);
       await this.setActivities();
-      runInAction(() => {
-        if (this.selectedActivity?.id === id) {
-          this.cancelSelectedActivity();
-          this.editMode = false;
-        }
-      });
     } catch (error) {
       console.log(error);
     } finally {
       runInAction(() => (this.loading = false));
+    }
+  };
+
+  getActivity = async (id: string) => {
+    this.initialLoading = true;
+    try {
+      await this.loadActivity(id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.setInitialLoading(false);
+      return this.selectedActivity;
     }
   };
 }

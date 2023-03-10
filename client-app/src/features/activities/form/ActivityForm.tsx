@@ -1,34 +1,59 @@
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Segment } from "semantic-ui-react";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Activity } from "../../../app/models/activity";
 import { useStore } from "../../../app/stores/store";
+import { v4 as uuid } from "uuid";
+
+const initialState: Activity = {
+  id: "",
+  title: "",
+  category: "",
+  description: "",
+  date: "",
+  city: "",
+  venue: "",
+};
 
 const ActivityForm = () => {
+  const [activity, setActivity] = useState<Activity>(initialState);
+  const { id } = useParams();
   const {
     activityStore: {
-      closeForm,
-      selectedActivity,
+      getActivity,
+      initialLoading,
       loading,
       createActivity,
       updateActivity,
     },
   } = useStore();
 
-  const initialState: Activity = selectedActivity ?? {
-    id: "",
-    title: "",
-    category: "",
-    description: "",
-    date: "",
-    city: "",
-    venue: "",
-  };
-  const [activity, setActivity] = useState(initialState);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+      getActivity(id).then((result) => setActivity(result ?? initialState));
+    }
+  }, [id, getActivity]);
+
+  if (initialLoading) {
+    return <LoadingComponent content="Loading activity..." />;
+  }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    activity.id ? updateActivity(activity) : createActivity(activity);
+    if (!activity.id) {
+      activity.id = uuid();
+      createActivity(activity).then(() =>
+        navigate(`/activities/${activity.id}`)
+      );
+    } else {
+      updateActivity(activity).then(() =>
+        navigate(`/activities/${activity.id}`)
+      );
+    }
   };
 
   const handleInputChange = (
@@ -88,7 +113,8 @@ const ActivityForm = () => {
           floated="right"
           type="button"
           content="Cancel"
-          onClick={closeForm}
+          as={Link}
+          to="/activities"
         />
       </Form>
     </Segment>
