@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Activity } from "../models/activity";
+import { format } from "date-fns";
 
 export default class ActivitySore {
   activities: Activity[] = [];
@@ -20,7 +21,7 @@ export default class ActivitySore {
     const list = await agent.Activities.list();
     runInAction(() => {
       list.forEach((item) => {
-        item.date = item.date.split("T")[0];
+        item.date = new Date(item.date!);
       });
       this.activities = [...list];
     });
@@ -30,7 +31,7 @@ export default class ActivitySore {
     this.setInitialLoading(true);
     try {
       const result = await agent.Activities.detail(id);
-      result.date = result.date.split("T")[0];
+      result.date = new Date(result.date!);
       runInAction(() => (this.selectedActivity = result));
     } catch (error) {
       console.log(error);
@@ -107,7 +108,7 @@ export default class ActivitySore {
   get groupedActivities() {
     return Object.entries(
       this.activities.reduce((result, item) => {
-        const date = item.date;
+        const date = format(item.date!, "dd MMM yyyy");
         result[date] = result[date] ? [...result[date], item] : [item];
         return result;
       }, {} as { [key: string]: Activity[] })

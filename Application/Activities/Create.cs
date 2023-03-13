@@ -31,6 +31,7 @@ namespace Application.Activities
             }
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                // request.Activity.Date = request.Activity.Date.ToUniversalTime();
                 _context.Activities.Add(request.Activity);
                 var result = await _context.SaveChangesAsync() > 0;
 

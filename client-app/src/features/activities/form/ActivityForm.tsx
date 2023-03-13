@@ -1,18 +1,29 @@
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Form, Segment } from "semantic-ui-react";
+import { Button, Header, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Activity } from "../../../app/models/activity";
 import { useStore } from "../../../app/stores/store";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { categoryOptions } from "../../../app/common/options/categoryOptions";
+import {
+  MyDateInput,
+  MySelectInput,
+  MyTextArea,
+  MyTextInput,
+} from "../../../app/common/form";
 import { v4 as uuid } from "uuid";
+
+// import { zonedTimeToUtc } from "date-fns-tz";
 
 const initialState: Activity = {
   id: "",
   title: "",
   category: "",
   description: "",
-  date: "",
+  date: null,
   city: "",
   venue: "",
 };
@@ -32,6 +43,15 @@ const ActivityForm = () => {
 
   const navigate = useNavigate();
 
+  const validationScheme = Yup.object({
+    title: Yup.string().required(),
+    description: Yup.string().required(),
+    category: Yup.string().required("Category is required"),
+    date: Yup.string().required("Date is required"),
+    city: Yup.string().required(),
+    venue: Yup.string().required(),
+  });
+
   useEffect(() => {
     if (id) {
       getActivity(id).then((result) => setActivity(result ?? initialState));
@@ -42,8 +62,9 @@ const ActivityForm = () => {
     return <LoadingComponent content="Loading activity..." />;
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFormSubmit = (activity: Activity) => {
+    // console.log(activity);
+
     if (!activity.id) {
       activity.id = uuid();
       createActivity(activity).then(() =>
@@ -56,69 +77,53 @@ const ActivityForm = () => {
     }
   };
 
-  const handleInputChange = (
-    ev: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { name, value } = ev.target;
-    setActivity({ ...activity, [name]: value });
-  };
-
   return (
     <Segment clearing>
-      <Form onSubmit={handleSubmit} autoComplete="off">
-        <Form.Input
-          placeholder="Title"
-          name="title"
-          value={activity.title}
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Form.TextArea
-          placeholder="Description"
-          value={activity.description}
-          name="description"
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Form.Input
-          placeholder="Category"
-          name="category"
-          value={activity.category}
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Form.Input
-          type="date"
-          placeholder="Date"
-          name="date"
-          value={activity.date}
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Form.Input
-          placeholder="City"
-          name="city"
-          value={activity.city}
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Form.Input
-          placeholder="Venue"
-          name="venue"
-          value={activity.venue}
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Button
-          floated="right"
-          positive
-          type="submit"
-          content="Submit"
-          loading={loading}
-        />
-        <Button
-          floated="right"
-          type="button"
-          content="Cancel"
-          as={Link}
-          to="/activities"
-        />
-      </Form>
+      <Header color="teal" sub content="Activity Details" />
+      <Formik
+        initialValues={activity}
+        validationSchema={validationScheme}
+        onSubmit={(values) => handleFormSubmit(values)}
+      >
+        {({ handleSubmit, isValid, isSubmitting, dirty }) => (
+          <Form className="ui form" onSubmit={handleSubmit} autoComplete="off">
+            <MyTextInput placeholder="Title" name="title" />
+            <MyTextArea rows={3} placeholder="Description" name="description" />
+            <MySelectInput
+              options={categoryOptions}
+              placeholder="Category"
+              name="category"
+            />
+            <MyDateInput
+              placeholderText="Date"
+              name="date"
+              showTimeSelect
+              timeCaption="time"
+              dateFormat="MMMM d, yyyy h:mm aa"
+            />
+            <Header color="teal" sub content="Location Details" />
+            <MyTextInput placeholder="City" name="city" />
+            <MyTextInput placeholder="Venue" name="venue" />
+            <Button
+              disabled={isSubmitting || !dirty || !isValid}
+              floated="right"
+              positive
+              type="submit"
+              content="Submit"
+              loading={loading}
+            />
+            <Button
+              floated="right"
+              type="button"
+              content="Cancel"
+              as={Link}
+              to="/activities"
+            />
+          </Form>
+        )}
+      </Formik>
     </Segment>
   );
 };
+
 export default observer(ActivityForm);
