@@ -31,7 +31,9 @@ export default class ActivitySore {
     this.setInitialLoading(true);
     try {
       const result = await agent.Activities.detail(id);
+      console.log(new Date(result.date!.toLocaleString()));
       result.date = new Date(result.date!);
+
       runInAction(() => (this.selectedActivity = result));
     } catch (error) {
       console.log(error);
@@ -108,7 +110,7 @@ export default class ActivitySore {
   get groupedActivities() {
     return Object.entries(
       this.activities.reduce((result, item) => {
-        const date = format(item.date!, "dd MMM yyyy");
+        const date = format(new Date(item.date!), "dd MMM yyyy");
         result[date] = result[date] ? [...result[date], item] : [item];
         return result;
       }, {} as { [key: string]: Activity[] })

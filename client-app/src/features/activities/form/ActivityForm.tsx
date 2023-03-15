@@ -16,8 +16,6 @@ import {
 } from "../../../app/common/form";
 import { v4 as uuid } from "uuid";
 
-// import { zonedTimeToUtc } from "date-fns-tz";
-
 const initialState: Activity = {
   id: "",
   title: "",
@@ -63,8 +61,6 @@ const ActivityForm = () => {
   }
 
   const handleFormSubmit = (activity: Activity) => {
-    // console.log(activity);
-
     if (!activity.id) {
       activity.id = uuid();
       createActivity(activity).then(() =>
