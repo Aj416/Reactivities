@@ -13,7 +13,7 @@ export default function MyDateInput(props: Partial<ReactDatePickerProps>) {
         onChange={(value) => helpers.setValue(value)}
       />
       {meta.touched && meta.error ? (
-        <Label basic color="red">
+        <Label basic color="red" pointing>
           {meta.error}
         </Label>
       ) : null}

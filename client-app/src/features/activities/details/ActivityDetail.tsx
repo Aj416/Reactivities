@@ -23,7 +23,8 @@ const ActivityDetail = () => {
     }
   }, [id, loadActivity]);
 
-  if (initialLoading || !activity) return <LoadingComponent />;
+  if (initialLoading || !activity)
+    return <LoadingComponent content="Loading activity ..." />;
 
   return (
     <Grid>

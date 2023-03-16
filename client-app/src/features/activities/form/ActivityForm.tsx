@@ -57,7 +57,7 @@ const ActivityForm = () => {
   }, [id, getActivity]);
 
   if (initialLoading) {
-    return <LoadingComponent content="Loading activity..." />;
+    return <LoadingComponent />;
   }
 
   const handleFormSubmit = (activity: Activity) => {

@@ -22,7 +22,7 @@ const MySelectInput = (props: Props) => {
         onBlur={() => helpers.setTouched(true)}
       />
       {meta.touched && meta.error ? (
-        <Label basic color="red">
+        <Label basic color="red" pointing>
           {meta.error}
         </Label>
       ) : null}

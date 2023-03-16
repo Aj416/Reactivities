@@ -15,7 +15,7 @@ const MyTextArea = (props: Props) => {
       <label>{props.label}</label>
       <textarea {...field} {...props} />
       {meta.touched && meta.error ? (
-        <Label basic color="red">
+        <Label basic color="red" pointing>
           {meta.error}
         </Label>
       ) : null}

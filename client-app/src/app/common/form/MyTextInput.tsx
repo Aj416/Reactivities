@@ -5,6 +5,7 @@ interface Props {
   placeholder: string;
   name: string;
   label?: string;
+  type?: string;
 }
 
 const MyTextInput = (props: Props) => {
@@ -14,7 +15,7 @@ const MyTextInput = (props: Props) => {
       <label>{props.label}</label>
       <input {...field} {...props} />
       {meta.touched && meta.error ? (
-        <Label basic color="red">
+        <Label basic color="red" pointing>
           {meta.error}
         </Label>
       ) : null}

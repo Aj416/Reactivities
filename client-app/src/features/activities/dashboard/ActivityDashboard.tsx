@@ -16,7 +16,7 @@ const ActivityDashboard = () => {
   }, [loadActivities]);
 
   if (initialLoading) {
-    return <LoadingComponent content="Loading app..." />;
+    return <LoadingComponent content="Loading activities..." />;
   }
 
   return (
