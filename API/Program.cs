@@ -11,6 +11,8 @@ using Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Application.Interfaces;
+using Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,8 @@ builder.Services.AddControllers(opt =>
 }).AddNewtonsoftJson(opt => opt.SerializerSettings.AsDefault());
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 // builder.Services.AddTransient<JsonSerializerSettings>(x => new JsonSerializerSettings().AsDefault());
 
 var app = builder.Build();
