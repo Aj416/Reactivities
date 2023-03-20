@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button, Header, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { Activity } from "../../../app/models/activity";
+import { ActivityFormValues } from "../../../app/models/activity";
 import { useStore } from "../../../app/stores/store";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -16,24 +16,15 @@ import {
 } from "../../../app/common/form";
 import { v4 as uuid } from "uuid";
 
-const initialState: Activity = {
-  id: "",
-  title: "",
-  category: "",
-  description: "",
-  date: null,
-  city: "",
-  venue: "",
-};
-
 const ActivityForm = () => {
-  const [activity, setActivity] = useState<Activity>(initialState);
+  const [activity, setActivity] = useState<ActivityFormValues>(
+    new ActivityFormValues()
+  );
   const { id } = useParams();
   const {
     activityStore: {
       getActivity,
       initialLoading,
-      loading,
       createActivity,
       updateActivity,
     },
@@ -52,7 +43,9 @@ const ActivityForm = () => {
 
   useEffect(() => {
     if (id) {
-      getActivity(id).then((result) => setActivity(result ?? initialState));
+      getActivity(id).then((result) =>
+        setActivity(new ActivityFormValues(result) ?? new ActivityFormValues())
+      );
     }
   }, [id, getActivity]);
 
@@ -60,7 +53,7 @@ const ActivityForm = () => {
     return <LoadingComponent />;
   }
 
-  const handleFormSubmit = (activity: Activity) => {
+  const handleFormSubmit = (activity: ActivityFormValues) => {
     if (!activity.id) {
       activity.id = uuid();
       createActivity(activity).then(() =>
@@ -106,7 +99,7 @@ const ActivityForm = () => {
               positive
               type="submit"
               content="Submit"
-              loading={loading}
+              loading={isSubmitting}
             />
             <Button
               floated="right"
