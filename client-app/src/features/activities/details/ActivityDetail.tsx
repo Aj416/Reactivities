@@ -14,14 +14,20 @@ import { useStore } from "../../../app/stores/store";
 const ActivityDetail = () => {
   const { id } = useParams();
   const {
-    activityStore: { selectedActivity: activity, initialLoading, loadActivity },
+    activityStore: {
+      selectedActivity: activity,
+      initialLoading,
+      loadActivity,
+      clearSelectedActivity,
+    },
   } = useStore();
 
   useEffect(() => {
     if (id) {
       loadActivity(id);
+      return () => clearSelectedActivity();
     }
-  }, [id, loadActivity]);
+  }, [id, loadActivity, clearSelectedActivity]);
 
   if (initialLoading || !activity)
     return <LoadingComponent content="Loading activity ..." />;
@@ -31,7 +37,7 @@ const ActivityDetail = () => {
       <Grid.Column width={10}>
         <ActivityDetailedHeader activity={activity} />
         <ActivityDetailedInfo activity={activity} />
-        <ActivityDetailedChat />
+        <ActivityDetailedChat activityId={activity.id} />
       </Grid.Column>
       <Grid.Column width={6}>
         <ActivityDetailedSidebar activity={activity} />

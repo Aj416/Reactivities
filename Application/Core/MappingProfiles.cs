@@ -31,6 +31,13 @@ namespace Application.Core
                     d => d.Image,
                     o => o.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url)
                 );
+            CreateMap<Comment, CommentDTO>()
+                .ForMember(d => d.DisplayName, o => o.MapFrom(src => src.Author.DisplayName))
+                .ForMember(d => d.UserName, o => o.MapFrom(src => src.Author.UserName))
+                .ForMember(
+                    d => d.Image,
+                    o => o.MapFrom(src => src.Author.Photos.FirstOrDefault(x => x.IsMain).Url)
+                );
         }
     }
 }

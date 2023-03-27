@@ -152,4 +152,8 @@ export default class ActivitySore {
       this.loading = false;
     }
   };
+
+  clearSelectedActivity = () => {
+    this.selectedActivity = undefined;
+  };
 }
