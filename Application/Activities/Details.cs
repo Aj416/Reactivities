@@ -1,8 +1,8 @@
 using Application.Core;
 using Application.DTO;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -18,17 +18,26 @@ public class Details
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+        private readonly IUserAccessor _userAccessor;
 
-        public Handler(DataContext context, IMapper mapper)
+        public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
         {
+            _userAccessor = userAccessor;
             _context = context;
             _mapper = mapper;
         }
-        public async Task<Result<ActivityDTO>> Handle(Query request, CancellationToken cancellationToken)
+
+        public async Task<Result<ActivityDTO>> Handle(
+            Query request,
+            CancellationToken cancellationToken
+        )
         {
             var activity = await _context.Activities
-            .ProjectTo<ActivityDTO>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(x => x.Id == request.Id);
+                .ProjectTo<ActivityDTO>(
+                    _mapper.ConfigurationProvider,
+                    new { currentUserName = _userAccessor.GetUserName() }
+                )
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             return Result<ActivityDTO>.Success(activity);
         }

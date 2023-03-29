@@ -8,6 +8,7 @@ import {
   Image,
 } from "semantic-ui-react";
 import { Profile } from "../../app/models/profile";
+import FollowButton from "./FollowButton";
 
 interface Props {
   profile: Profile;
@@ -29,8 +30,10 @@ const ProfileCard = ({ profile }: Props) => {
       </CardContent>
       <CardContent extra>
         <Icon name="user" />
-        20 followers
+        {profile.followersCount}{" "}
+        {profile.followersCount > 1 ? "followers" : "follower"}
       </CardContent>
+      <FollowButton profile={profile} />
     </Card>
   );
 };

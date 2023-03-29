@@ -19,7 +19,7 @@ export default class ActivitySore {
     this.initialLoading = state;
   };
 
-  private setActivity = (activity: Activity) => {
+  setActivity = (activity: Activity) => {
     const userEntity = store.userStore.user;
     if (userEntity) {
       activity.isGoing = activity.attendees!.some(
